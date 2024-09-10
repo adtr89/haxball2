@@ -4,7 +4,8 @@
   "main": "server.js",
   "dependencies": {
     "express": "^4.17.1",
-    "haxball.js": "^2.1.1"
+    "haxball.js": "^2.1.1",
+    "https-proxy-agent": "^5.0.0"
   },
   "scripts": {
     "start": "node server.js"
