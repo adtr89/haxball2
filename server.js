@@ -1,7 +1,7 @@
 const HaxballJS = require('haxball.js');
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
 let roomLink = null;
 let room = null;
