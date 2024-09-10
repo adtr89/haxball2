@@ -31,7 +31,7 @@ function createRoom() {
       roomName: "Soukromá místnost pro kolegy",
       maxPlayers: 16,
       public: false,
-      token: HAXBALL_TOKEN
+      token: HAXBALL_TOKEN,
       proxy: { port: port }
     };
     console.log('Room configuration:', config);
