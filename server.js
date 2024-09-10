@@ -1,7 +1,7 @@
 const HaxballJS = require('haxball.js');
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;  // Dynamický port přidělený Renderem
 
 let roomLink = null;
 let room = null;
@@ -21,23 +21,25 @@ app.listen(port, () => {
 const HAXBALL_TOKEN = "thr1.AAAAAGbgje-wyQGIWTqo3A.zWwtOUQIsC8";
 
 function createRoom() {
+  if (room !== null) {
+    console.log('Room already initialized, skipping creation.');
+    return;
+  }
   console.log('Attempting to create Haxball room...');
   console.log('Current environment:', process.env.NODE_ENV);
   console.log('Current port:', port);
-  
+
   HaxballJS.then((HBInit) => {
     console.log('HaxballJS loaded successfully');
-    
     const config = {
       roomName: "Soukromá místnost pro kolegy",
       maxPlayers: 16,
       public: false,
       token: HAXBALL_TOKEN,
-      proxy: { port: process.env.PORT || 10000 }  // Dynamický port z prostředí
+      proxy: { port: port.toString() }  // Proxy musí používat dynamický port
     };
-    
     console.log('Room configuration:', config);
-    
+
     room = HBInit(config);
 
     room.onRoomLink = (link) => {
