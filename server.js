@@ -32,6 +32,7 @@ function createRoom() {
       maxPlayers: 16,
       public: false,
       token: HAXBALL_TOKEN
+      proxy: { port: port }
     };
     console.log('Room configuration:', config);
     
