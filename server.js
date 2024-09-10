@@ -1,7 +1,19 @@
 const HaxballJS = require('haxball.js');
 const express = require('express');
+const cors = require('cors');
+const HttpsProxyAgent = require('https-proxy-agent');
+
 const app = express();
-const port = process.env.PORT || 10000;  // Dynamický port přidělený Renderem
+const port = process.env.PORT || 10000;
+
+// Proxy nastavení
+const proxyUrl = process.env.HTTP_PROXY || 'http://proxy.replit.com:8080';
+const agent = new HttpsProxyAgent(proxyUrl);
+global.XMLHttpRequest = require('xhr2');
+global.WebSocket = require('ws');
+
+// Povolení CORS
+app.use(cors());
 
 let roomLink = null;
 let room = null;
@@ -14,17 +26,13 @@ app.get('/', (req, res) => {
   }
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Express server is running on port ${port}`);
 });
 
 const HAXBALL_TOKEN = "thr1.AAAAAGbgje-wyQGIWTqo3A.zWwtOUQIsC8";
 
 function createRoom() {
-  if (room !== null) {
-    console.log('Room already initialized, skipping creation.');
-    return;
-  }
   console.log('Attempting to create Haxball room...');
   console.log('Current environment:', process.env.NODE_ENV);
   console.log('Current port:', port);
@@ -36,7 +44,6 @@ function createRoom() {
       maxPlayers: 16,
       public: false,
       token: HAXBALL_TOKEN,
-      proxy: { port: port.toString() }  // Proxy musí používat dynamický port
     };
     console.log('Room configuration:', config);
 
@@ -59,17 +66,20 @@ function createRoom() {
 
     room.onConnectionError = (error) => {
       console.error('Connection error occurred:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
     };
+
+    // Další event handlery...
 
   }).catch((error) => {
     console.error('Error initializing Haxball room:', error);
-    setTimeout(createRoom, 10000); // Retry after 10 seconds
+    setTimeout(createRoom, 10000);
   });
 }
 
 createRoom();
 
-// Regular logging of room status
+// Pravidelné logování stavu místnosti
 setInterval(() => {
   if (room) {
     console.log('Current room state:');
@@ -78,9 +88,9 @@ setInterval(() => {
   } else {
     console.log('Room is not initialized');
   }
-}, 60000); // Every minute
+}, 60000); // Každou minutu
 
-// Endpoint for status
+// Přidáme endpoint pro zobrazení aktuálního stavu
 app.get('/status', (req, res) => {
   if (room) {
     res.json({
