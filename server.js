@@ -1,12 +1,7 @@
 const HaxballJS = require('haxball.js');
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 10000;
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-  console.log('Open ports: ', process.env.PORT);
-});
+const port = process.env.PORT || 45712;
 
 let roomLink = null;
 let room = null;
