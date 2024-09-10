@@ -20,7 +20,7 @@ app.listen(port, () => {
 
 // VAROVÁNÍ: Ukládání tokenu přímo v kódu není bezpečné pro produkční prostředí.
 // Pro produkci použijte proměnné prostředí nebo bezpečný systém správy tajných klíčů.
-const HAXBALL_TOKEN = "thr1.AAAAAGbgOqY-37Kk2VOxmQ.TJa41m6Or0k";
+const HAXBALL_TOKEN = "thr1.AAAAAGbgje-wyQGIWTqo3A.zWwtOUQIsC8";
 
 function createRoom() {
   HaxballJS.then((HBInit) => {
