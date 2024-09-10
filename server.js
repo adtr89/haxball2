@@ -27,13 +27,15 @@ function createRoom() {
   
   HaxballJS.then((HBInit) => {
     console.log('HaxballJS loaded successfully');
+    
     const config = {
       roomName: "Soukromá místnost pro kolegy",
       maxPlayers: 16,
       public: false,
       token: HAXBALL_TOKEN,
-      proxy: { port: port }
+      proxy: { port: process.env.PORT || 10000 }  // Dynamický port z prostředí
     };
+    
     console.log('Room configuration:', config);
     
     room = HBInit(config);
@@ -57,17 +59,15 @@ function createRoom() {
       console.error('Connection error occurred:', error);
     };
 
-    // Další event handlery zůstávají stejné...
-
   }).catch((error) => {
     console.error('Error initializing Haxball room:', error);
-    setTimeout(createRoom, 10000);
+    setTimeout(createRoom, 10000); // Retry after 10 seconds
   });
 }
 
 createRoom();
 
-// Pravidelné logování stavu místnosti
+// Regular logging of room status
 setInterval(() => {
   if (room) {
     console.log('Current room state:');
@@ -76,9 +76,9 @@ setInterval(() => {
   } else {
     console.log('Room is not initialized');
   }
-}, 60000); // Každou minutu
+}, 60000); // Every minute
 
-// Přidáme endpoint pro zobrazení aktuálního stavu
+// Endpoint for status
 app.get('/status', (req, res) => {
   if (room) {
     res.json({
