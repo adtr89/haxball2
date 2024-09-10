@@ -1,35 +1,41 @@
 const HaxballJS = require('haxball.js');
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 45712;
+const port = process.env.PORT || 3000;
 
 let roomLink = null;
 let room = null;
 
 app.get('/', (req, res) => {
   if (roomLink) {
-    res.send(`Haxball server is running! Room link: ${roomLink}`);
+    res.send(`Haxball server is running on port ${port}! Room link: ${roomLink}`);
   } else {
-    res.send('Haxball server is running, but the room is not created yet.');
+    res.send(`Haxball server is running on port ${port}, but the room is not created yet.`);
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Express server is running on port ${port}`);
 });
 
-// VAROVÁNÍ: Ukládání tokenu přímo v kódu není bezpečné pro produkční prostředí.
-// Pro produkci použijte proměnné prostředí nebo bezpečný systém správy tajných klíčů.
 const HAXBALL_TOKEN = "thr1.AAAAAGbgje-wyQGIWTqo3A.zWwtOUQIsC8";
 
 function createRoom() {
+  console.log('Attempting to create Haxball room...');
+  console.log('Current environment:', process.env.NODE_ENV);
+  console.log('Current port:', port);
+  
   HaxballJS.then((HBInit) => {
-    room = HBInit({
+    console.log('HaxballJS loaded successfully');
+    const config = {
       roomName: "Soukromá místnost pro kolegy",
       maxPlayers: 16,
       public: false,
       token: HAXBALL_TOKEN
-    });
+    };
+    console.log('Room configuration:', config);
+    
+    room = HBInit(config);
 
     room.onRoomLink = (link) => {
       console.log('Room created successfully!');
@@ -38,34 +44,48 @@ function createRoom() {
     };
 
     room.onPlayerJoin = (player) => {
-      console.log(`${player.name} se připojil do místnosti`);
+      console.log(`Player ${player.name} (ID: ${player.id}) joined the room`);
       room.sendChat("Vítejte v naší soukromé Haxball místnosti!");
     };
 
-    room.onConnectionError = (error) => {
-      console.error('Connection error:', error);
+    room.onPlayerLeave = (player) => {
+      console.log(`Player ${player.name} (ID: ${player.id}) left the room`);
     };
 
-    // Automatické obnovení místnosti při odpojení
-    room.onRoomDestroy = () => {
-      console.log('Room was destroyed. Attempting to recreate...');
-      setTimeout(createRoom, 10000);  // Pokus o obnovení po 10 sekundách
+    room.onConnectionError = (error) => {
+      console.error('Connection error occurred:', error);
     };
+
+    // Další event handlery zůstávají stejné...
+
   }).catch((error) => {
     console.error('Error initializing Haxball room:', error);
-    setTimeout(createRoom, 10000);  // Pokus o obnovení po 10 sekundách
+    setTimeout(createRoom, 10000);
   });
 }
 
 createRoom();
 
-// Pravidelné obnovení tokenu (každých 23 hodin)
+// Pravidelné logování stavu místnosti
 setInterval(() => {
-  console.log('Attempting to refresh the token and recreate the room...');
-  // Zde byste implementovali logiku pro získání nového tokenu
-  // HAXBALL_TOKEN = getNewToken();
   if (room) {
-    room.destroy();
+    console.log('Current room state:');
+    console.log('Players:', room.getPlayerList().length);
+    console.log('Game in progress:', room.getScores() !== null);
+  } else {
+    console.log('Room is not initialized');
   }
-  createRoom();
-}, 23 * 60 * 60 * 1000);
+}, 60000); // Každou minutu
+
+// Přidáme endpoint pro zobrazení aktuálního stavu
+app.get('/status', (req, res) => {
+  if (room) {
+    res.json({
+      roomLink: roomLink,
+      players: room.getPlayerList().length,
+      gameInProgress: room.getScores() !== null
+    });
+  } else {
+    res.json({ status: 'Room not initialized' });
+  }
+});
