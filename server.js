@@ -3,6 +3,11 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 10000;
 
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+  console.log('Open ports: ', process.env.PORT);
+});
+
 let roomLink = null;
 let room = null;
 
